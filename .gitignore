@@ -98,3 +98,5 @@ firebase-debug.log
 
 # Local development
 local_*
+
+push.sh
