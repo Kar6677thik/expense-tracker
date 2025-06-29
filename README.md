@@ -483,4 +483,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Built with ❤️ and modern DevOps practices**
+## 🔄 Push Script (Optional)
+
+This project includes a `push.sh` script that simplifies committing and pushing changes to GitHub.
+
+### Usage:
+
+```bash
+./push.sh
+
+
+**Built with modern DevOps practices**
+```
