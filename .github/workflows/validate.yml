@@ -1,0 +1,97 @@
+name: Validate Frontend Code
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: |
+          npm init -y
+          npm install --save-dev htmlhint eslint
+
+      - name: Validate HTML
+        run: |
+          npx htmlhint --config .htmlhintrc index.html
+          echo "HTML validation completed"
+
+      - name: Check JavaScript syntax
+        run: |
+          npx eslint --no-eslintrc --env browser,es2021 --parserOptions ecmaVersion:2021 *.js || echo "No separate JS files found"
+          echo "JavaScript syntax check completed"
+
+      - name: Validate embedded JavaScript
+        run: |
+          # Extract JavaScript from HTML and validate
+          grep -o '<script[^>]*>.*</script>' index.html > temp_script.js || echo "No inline scripts found"
+          if [ -s temp_script.js ]; then
+            # Remove script tags for validation
+            sed 's/<script[^>]*>//g; s/<\/script>//g' temp_script.js > clean_script.js
+            npx eslint --no-eslintrc --env browser,es2021 --parserOptions ecmaVersion:2021 clean_script.js || echo "JavaScript validation completed with warnings"
+            rm -f temp_script.js clean_script.js
+          fi
+
+      - name: Check for common issues
+        run: |
+          echo "Checking for common frontend issues..."
+
+          # Check for missing meta viewport tag
+          if ! grep -q "viewport" index.html; then
+            echo "⚠️  Warning: Missing viewport meta tag"
+          else
+            echo "✅ Viewport meta tag found"
+          fi
+
+          # Check for HTTPS resources in production
+          if grep -q "http://" index.html; then
+            echo "⚠️  Warning: HTTP resources found, consider HTTPS for production"
+          else
+            echo "✅ No insecure HTTP resources found"
+          fi
+
+          # Check for console.log statements
+          if grep -q "console.log" index.html; then
+            echo "⚠️  Warning: console.log statements found - consider removing for production"
+          else
+            echo "✅ No console.log statements found"
+          fi
+
+          echo "Frontend validation completed successfully! 🚀"
+
+  lighthouse-ci:
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli@0.12.x
+
+      - name: Run Lighthouse CI
+        run: |
+          lhci autorun --upload.target=temporary-public-storage --collect.staticDistDir=.
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}

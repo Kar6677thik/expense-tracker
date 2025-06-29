@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExpenseTrack - Personal Budget Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .form-section, .summary-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-section:hover, .summary-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #4facfe;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(79, 172, 254, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .expenses-list {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .expense-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            border-left: 4px solid #4facfe;
+            transition: all 0.3s ease;
+        }
+
+        .expense-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .expense-info {
+            flex: 1;
+        }
+
+        .expense-amount {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+
+        .expense-category {
+            background: #4facfe;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .expense-description {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .expense-date {
+            color: #999;
+            font-size: 0.8rem;
+        }
+
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background: #c0392b;
+            transform: scale(1.05);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .summary-card:hover {
+            transform: scale(1.05);
+        }
+
+        .summary-amount {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .summary-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .no-expenses {
+            text-align: center;
+            color: #999;
+            font-style: italic;
+            padding: 40px;
+        }
+
+        .api-status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .api-status.connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .api-status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .expense-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .delete-btn {
+                margin-top: 10px;
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 ExpenseTrack</h1>
+            <p>Your DevOps-Integrated Personal Budget Tracker</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Add Expense Form -->
+            <div class="form-section">
+                <h2 class="section-title">Add New Expense</h2>
+                <form id="expense-form">
+                    <div class="form-group">
+                        <label for="amount">Amount ($)</label>
+                        <input type="number" id="amount" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category" required>
+                            <option value="">Select Category</option>
+                            <option value="food">🍔 Food & Dining</option>
+                            <option value="transport">🚗 Transportation</option>
+                            <option value="entertainment">🎬 Entertainment</option>
+                            <option value="utilities">💡 Utilities</option>
+                            <option value="healthcare">🏥 Healthcare</option>
+                            <option value="shopping">🛍️ Shopping</option>
+                            <option value="education">📚 Education</option>
+                            <option value="other">🔧 Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <input type="text" id="description" placeholder="Brief description of the expense">
+                    </div>
+                    <button type="submit" class="btn">Add Expense</button>
+                </form>
+                
+                <div id="api-status" class="api-status"></div>
+            </div>
+
+            <!-- Summary Section -->
+            <div class="summary-section">
+                <h2 class="section-title">Expense Summary</h2>
+                <div id="total-amount" class="summary-amount">$0.00</div>
+                <div class="summary-label">Total Expenses</div>
+                
+                <div class="summary-grid" id="category-summary">
+                    <!-- Category summaries will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Expenses List -->
+        <div class="expenses-list">
+            <h2 class="section-title">Recent Expenses</h2>
+            <div id="expenses-container">
+                <div class="no-expenses">No expenses recorded yet. Add your first expense above!</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class ExpenseTracker {
+            constructor() {
+                this.expenses = this.loadExpenses();
+                this.apiEndpoint = this.getApiEndpoint();
+                this.initializeEventListeners();
+                this.updateDisplay();
+                this.checkApiStatus();
+            }
+
+            getApiEndpoint() {
+                // Check for Netlify environment variable
+                if (typeof window !== 'undefined' && window.location.hostname.includes('netlify')) {
+                    // In production, this would be set via Netlify environment variables
+                    return window.EXPENSE_API_URL || null;
+                }
+                return null;
+            }
+
+            initializeEventListeners() {
+                const form = document.getElementById('expense-form');
+                form.addEventListener('submit', (e) => this.handleSubmit(e));
+            }
+
+            loadExpenses() {
+                try {
+                    const stored = JSON.parse(window.localStorage?.getItem('expenses') || '[]');
+                    return Array.isArray(stored) ? stored : [];
+                } catch {
+                    return [];
+                }
+            }
+
+            saveExpenses() {
+                try {
+                    if (window.localStorage) {
+                        window.localStorage.setItem('expenses', JSON.stringify(this.expenses));
+                    }
+                } catch (error) {
+                    console.warn('Could not save to localStorage:', error);
+                }
+            }
+
+            async handleSubmit(e) {
+                e.preventDefault();
+                
+                const amount = parseFloat(document.getElementById('amount').value);
+                const category = document.getElementById('category').value;
+                const description = document.getElementById('description').value;
+
+                if (!amount || !category) {
+                    alert('Please fill in all required fields');
+                    return;
+                }
+
+                const expense = {
+                    id: Date.now().toString(),
+                    amount: amount,
+                    category: category,
+                    description: description,
+                    date: new Date().toISOString()
+                };
+
+                this.expenses.unshift(expense);
+                this.saveExpenses();
+                
+                // Try to sync with API if available
+                if (this.apiEndpoint) {
+                    try {
+                        await this.syncExpenseToApi(expense);
+                    } catch (error) {
+                        console.warn('API sync failed:', error);
+                    }
+                }
+
+                this.updateDisplay();
+                e.target.reset();
+            }
+
+            async syncExpenseToApi(expense) {
+                if (!this.apiEndpoint) return;
+                
+                const response = await fetch(this.apiEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(expense)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('API sync failed');
+                }
+            }
+
+            deleteExpense(id) {
+                this.expenses = this.expenses.filter(expense => expense.id !== id);
+                this.saveExpenses();
+                this.updateDisplay();
+            }
+
+            updateDisplay() {
+                this.updateExpensesList();
+                this.updateSummary();
+            }
+
+            updateExpensesList() {
+                const container = document.getElementById('expenses-container');
+                
+                if (this.expenses.length === 0) {
+                    container.innerHTML = '<div class="no-expenses">No expenses recorded yet. Add your first expense above!</div>';
+                    return;
+                }
+
+                container.innerHTML = this.expenses.map(expense => `
+                    <div class="expense-item">
+                        <div class="expense-info">
+                            <div class="expense-amount">$${expense.amount.toFixed(2)}</div>
+                            <span class="expense-category">${this.getCategoryLabel(expense.category)}</span>
+                            <div class="expense-description">${expense.description || 'No description'}</div>
+                            <div class="expense-date">${new Date(expense.date).toLocaleDateString()}</div>
+                        </div>
+                        <button class="delete-btn" onclick="tracker.deleteExpense('${expense.id}')">
+                            Delete
+                        </button>
+                    </div>
+                `).join('');
+            }
+
+            updateSummary() {
+                const total = this.expenses.reduce((sum, expense) => sum + expense.amount, 0);
+                document.getElementById('total-amount').textContent = `$${total.toFixed(2)}`;
+
+                const categoryTotals = this.expenses.reduce((acc, expense) => {
+                    acc[expense.category] = (acc[expense.category] || 0) + expense.amount;
+                    return acc;
+                }, {});
+
+                const summaryContainer = document.getElementById('category-summary');
+                summaryContainer.innerHTML = Object.entries(categoryTotals)
+                    .map(([category, amount]) => `
+                        <div class="summary-card">
+                            <div class="summary-amount">$${amount.toFixed(2)}</div>
+                            <div class="summary-label">${this.getCategoryLabel(category)}</div>
+                        </div>
+                    `).join('');
+            }
+
+            getCategoryLabel(category) {
+                const labels = {
+                    food: '🍔 Food & Dining',
+                    transport: '🚗 Transportation',
+                    entertainment: '🎬 Entertainment',
+                    utilities: '💡 Utilities',
+                    healthcare: '🏥 Healthcare',
+                    shopping: '🛍️ Shopping',
+                    education: '📚 Education',
+                    other: '🔧 Other'
+                };
+                return labels[category] || category;
+            }
+
+            async checkApiStatus() {
+                const statusElement = document.getElementById('api-status');
+                
+                if (!this.apiEndpoint) {
+                    statusElement.textContent = 'API: Local storage only';
+                    statusElement.className = 'api-status disconnected';
+                    return;
+                }
+
+                try {
+                    const response = await fetch(this.apiEndpoint, { method: 'HEAD' });
+                    if (response.ok) {
+                        statusElement.textContent = 'API: Connected';
+                        statusElement.className = 'api-status connected';
+                    } else {
+                        throw new Error('API not responding');
+                    }
+                } catch (error) {
+                    statusElement.textContent = 'API: Disconnected (using local storage)';
+                    statusElement.className = 'api-status disconnected';
+                }
+            }
+        }
+
+        // Initialize the expense tracker
+        const tracker = new ExpenseTracker();
+
+        // Demo data for first-time users
+        if (tracker.expenses.length === 0) {
+            const demoExpenses = [
+                {
+                    id: 'demo1',
+                    amount: 12.50,
+                    category: 'food',
+                    description: 'Lunch at downtown cafe',
+                    date: new Date(Date.now() - 86400000).toISOString()
+                },
+                {
+                    id: 'demo2',
+                    amount: 45.00,
+                    category: 'transport',
+                    description: 'Weekly transit pass',
+                    date: new Date(Date.now() - 172800000).toISOString()
+                },
+                {
+                    id: 'demo3',
+                    amount: 25.99,
+                    category: 'entertainment',
+                    description: 'Movie tickets',
+                    date: new Date(Date.now() - 259200000).toISOString()
+                }
+            ];
+            
+            tracker.expenses = demoExpenses;
+            tracker.saveExpenses();
+            tracker.updateDisplay();
+        }
+    </script>
+</body>
+</html>
