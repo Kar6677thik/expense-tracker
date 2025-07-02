@@ -1,8 +1,8 @@
-# 💰 ExpenseTrack: DevOps-Integrated Personal Budget Tracker
+# ExpenseTrack: DevOps-Integrated Personal Budget Tracker
 
 A modern, responsive personal expense tracking application with full DevOps integration, featuring automated deployment via Netlify and continuous integration with GitHub Actions.
 
-## 🚀 Features
+## Features
 
 ### Core Functionality
 
@@ -28,7 +28,7 @@ A modern, responsive personal expense tracking application with full DevOps inte
 - **DevOps**: GitHub Actions, Netlify, HTMLHint, ESLint
 - **Design**: CSS Grid, Flexbox, CSS Animations, Responsive Design
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 expense-tracker/
@@ -43,7 +43,7 @@ expense-tracker/
 └── package.json            # npm configuration (auto-generated)
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Local Development
 
@@ -146,7 +146,7 @@ LHCI_GITHUB_APP_TOKEN=your_lighthouse_token
 gh workflow run validate.yml
 ```
 
-## 🔒 Security & Environment Variables
+## Security & Environment Variables
 
 ### Environment Variables Handling
 
@@ -176,7 +176,7 @@ netlify env:set NODE_ENV "production"
 4. **Validate user inputs** on both client and server
 5. **Use CSP headers** for additional security
 
-## 🧪 Testing & Validation
+## Testing & Validation
 
 ### Automated Testing (GitHub Actions)
 
@@ -218,7 +218,7 @@ npx htmlhint index.html
 npx eslint --no-eslintrc --env browser *.js
 ```
 
-## 🔌 API Integration (Optional)
+## API Integration (Optional)
 
 ### Mock API Setup
 
@@ -259,7 +259,7 @@ The app automatically detects and uses the `EXPENSE_API_URL` environment variabl
 const apiEndpoint = process.env.EXPENSE_API_URL || window.EXPENSE_API_URL;
 ```
 
-## 📱 Features Overview
+## Features Overview
 
 ### User Interface
 
@@ -277,16 +277,16 @@ const apiEndpoint = process.env.EXPENSE_API_URL || window.EXPENSE_API_URL;
 
 ### Category System
 
-- 🍔 Food & Dining
-- 🚗 Transportation
-- 🎬 Entertainment
-- 💡 Utilities
-- 🏥 Healthcare
-- 🛍️ Shopping
-- 📚 Education
-- 🔧 Other
+- Food & Dining
+- Transportation
+- Entertainment
+- Utilities
+- Healthcare
+- Shopping
+- Education
+- Other
 
-## 🚀 Deployment Options
+## Deployment Options
 
 ### 1. Netlify (Recommended)
 
